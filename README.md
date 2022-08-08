@@ -22,53 +22,67 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+# Config Module
 
-## Installation
+- Permite trabajar con variables de ambientes
+- Permite trabajar en diferentes ambientes
 
-```bash
-$ npm install
-```
-
-## Running the app
+1. Instalar
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+# Instalar Config
+$ npm i @nestjs/config
 ```
-
-## Test
+2. Crear archivos de variables de entorno  [. env ] 
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+API_KEY = XXXX
 ```
 
-## Support
+3. Excluir el archivo de variables de entorno  [ .gitignore ]
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+*.env
+```
 
-## Stay in touch
+4. Configurar archivo modules [ app.modules.ts ]
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```bash
+# Importar ConfigModule
+import { ConfigModule } from '@nestjs/config'
+```
 
-## License
+```bash
+# Configuración de archivo de entorno y de manera global
+@Module ({
+    imports:[
+      ConfigModule.forRoot({
+          envfilePath: '.env'
+          isGlobal: true
+      })
+    ]
+})
+```
 
-Nest is [MIT licensed](LICENSE).
-# nest-modular
+5. Configurar servicio
+
+```bash
+# Importar ConfigService
+import { ConfigService } from '@nestjs/config'
+```
+
+```bash
+#Inyección de variables de entorno
+constructor ( 
+  private configService: ConfigService,
+)
+```
+
+```bash
+#Consumo de variable de entorno
+metodo ( ) {
+  this.configService.get('API_KEY');
+}
+```
+
