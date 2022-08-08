@@ -225,3 +225,36 @@ import { ConfigType } from '@nestjs/config';
       isGlobal: true,
   }),
 ```
+
+# Validación variables ambientes
+-Validacion de Tipado
+-Validacion de archivos .env desde el exterior
+
+1. Instalar el paquete Joi
+
+```shell
+npm install --save joi
+```
+
+2. Importar el Joi en el módulo de la aplicación a través de la propiedad validationShema.
+
+```shell
+import * as Joi from 'joi';  
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      envFilePath: enviroments[process.env.NODE_ENV] || '.env',
+      load: [config],
+      isGlobal: true,
+      validationSchema: Joi.object({ 
+        API_KEY: Joi.number().required(),
+        DATABASE_NAME: Joi.string().required(),
+        DATABASE_PORT: Joi.number().required(),
+      }),
+    }),
+    ...
+  ],
+  ...
+})
+```
