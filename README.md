@@ -86,3 +86,60 @@ metodo ( ) {
 }
 ```
 
+# Configuración Ambientes
+
+- Permite trabajar con variables de ambientes de desarrollo, pruebas, producción
+
+1. Crear archivos por ambientes [ .env, .stag.env , .pro.env]
+
+2. Crear achivo configuracion [ src/enviroments.ts]
+
+```bash
+export const enviroment = {
+  dev='.env',
+  stag='.stag.env',
+  pro='.pro.env',
+}
+```
+3. Editar [app.modules.ts]
+
+```bash
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      envFilePath: enviroments[process.env.NODE_ENV] || '.env',
+      isGlobal: true,
+  }),
+    UsersModule,
+  ],
+})
+```
+
+4. Configuración servicio
+
+```bash
+# Importar ConfigService
+import { ConfigService } from '@nestjs/config'
+```
+
+```bash
+#Inyección de variables de entorno
+constructor ( 
+  private configService: ConfigService,
+)
+```
+
+```bash
+#Consumo de variable de entorno
+metodo ( ) {
+  const apikey = this.configService.get<string>('API_KEY');
+}
+```
+
+5. Ejecutar de acuerdo al ambiente
+
+
+```bash
+NODE_ENV=stag npm run start:dev
+
+```

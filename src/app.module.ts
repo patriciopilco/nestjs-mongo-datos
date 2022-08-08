@@ -3,12 +3,13 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
-import config from 'src/config';
+
+import { enviroments } from './enviroments';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: '.env',
+      envFilePath: enviroments[process.env.NODE_ENV] || '.env',
       isGlobal: true,
   }),
     UsersModule,
