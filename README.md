@@ -143,3 +143,85 @@ metodo ( ) {
 NODE_ENV=stag npm run start:dev
 
 ```
+
+
+# Tipado en la configuración
+
+- Permite evitar errores de tipado en variables de configuración
+
+1. Crear el archivo de configuración [ src/config.ts ]
+
+2. Editar el arhivo de configuración 
+
+```bash
+
+import { registerAs } from '@nestjs/config'
+
+export default registerAs('config', () => {
+    return {
+    database: {
+        name: process.env.DATABASE_NAME,
+        port: process.env.DATABASE_PORT,
+    },
+        apiKey: process.env.API_KEY,
+    }
+});
+```
+
+3. Configurar servicio para hacer uso de variables tipadas
+
+3.1 Importar Inject
+
+```bash
+# Importar Inject
+import { Injectable, Inject } from '@nestjs/common';
+```
+
+3.2 Importar archivo config.ts
+
+```bash
+# Importar archivo config
+import config from './config';
+```
+
+3.3 Importar ConfigType
+
+```bash
+# Importar ConfigType
+import { ConfigType } from '@nestjs/config';
+```
+
+3.4 Crear configService en el constructor
+
+```bash
+# Inyectar config.KEY al paramero configService
+  constructor(
+    @Inject(config.KEY) private configService: ConfigType<typeof config>,
+  ){}
+```
+
+
+3.5 Usar variable de ambiente tipada
+
+```bash
+# Acceder al valor de la variable mediante el atributo configService
+  getHello(): string {
+    const apikey = this.configService.apiKey;
+    return `ApiKey = ${apikey}`;
+  }
+```
+
+
+
+4. Cargar configuración en el modulo
+
+```bash
+# Añadir load para cargar la configuración config
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      envFilePath: enviroments[process.env.NODE_ENV] || '.env',
+      load: [config],
+      isGlobal: true,
+  }),
+```
