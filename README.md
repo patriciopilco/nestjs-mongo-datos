@@ -22,53 +22,239 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+# Config Module
 
-## Installation
+- Permite trabajar con variables de ambientes
+- Permite trabajar en diferentes ambientes
 
-```bash
-$ npm install
-```
-
-## Running the app
+1. Instalar
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+# Instalar Config
+$ npm i @nestjs/config
 ```
-
-## Test
+2. Crear archivos de variables de entorno  [. env ] 
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+API_KEY = XXXX
 ```
 
-## Support
+3. Excluir el archivo de variables de entorno  [ .gitignore ]
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+*.env
+```
 
-## Stay in touch
+4. Configurar archivo modules [ app.modules.ts ]
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```bash
+# Importar ConfigModule
+import { ConfigModule } from '@nestjs/config'
+```
 
-## License
+```bash
+# Configuración de archivo de entorno y de manera global
+@Module ({
+    imports:[
+      ConfigModule.forRoot({
+          envfilePath: '.env'
+          isGlobal: true
+      })
+    ]
+})
+```
 
-Nest is [MIT licensed](LICENSE).
-# nest-modular
+5. Configurar servicio
+
+```bash
+# Importar ConfigService
+import { ConfigService } from '@nestjs/config'
+```
+
+```bash
+#Inyección de variables de entorno
+constructor ( 
+  private configService: ConfigService,
+)
+```
+
+```bash
+#Consumo de variable de entorno
+metodo ( ) {
+  this.configService.get('API_KEY');
+}
+```
+
+# Configuración Ambientes
+
+- Permite trabajar con variables de ambientes de desarrollo, pruebas, producción
+
+1. Crear archivos por ambientes [ .env, .stag.env , .pro.env]
+
+2. Crear achivo configuracion [ src/enviroments.ts]
+
+```bash
+export const enviroment = {
+  dev='.env',
+  stag='.stag.env',
+  pro='.pro.env',
+}
+```
+3. Editar [app.modules.ts]
+
+```bash
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      envFilePath: enviroments[process.env.NODE_ENV] || '.env',
+      isGlobal: true,
+  }),
+    UsersModule,
+  ],
+})
+```
+
+4. Configuración servicio
+
+```bash
+# Importar ConfigService
+import { ConfigService } from '@nestjs/config'
+```
+
+```bash
+#Inyección de variables de entorno
+constructor ( 
+  private configService: ConfigService,
+)
+```
+
+```bash
+#Consumo de variable de entorno
+metodo ( ) {
+  const apikey = this.configService.get<string>('API_KEY');
+}
+```
+
+5. Ejecutar de acuerdo al ambiente
+
+
+```bash
+NODE_ENV=stag npm run start:dev
+
+```
+
+
+# Tipado en la configuración
+
+- Permite evitar errores de tipado en variables de configuración
+
+1. Crear el archivo de configuración [ src/config.ts ]
+
+2. Editar el arhivo de configuración 
+
+```bash
+
+import { registerAs } from '@nestjs/config'
+
+export default registerAs('config', () => {
+    return {
+    database: {
+        name: process.env.DATABASE_NAME,
+        port: process.env.DATABASE_PORT,
+    },
+        apiKey: process.env.API_KEY,
+    }
+});
+```
+
+3. Configurar servicio para hacer uso de variables tipadas
+
+3.1 Importar Inject
+
+```bash
+# Importar Inject
+import { Injectable, Inject } from '@nestjs/common';
+```
+
+3.2 Importar archivo config.ts
+
+```bash
+# Importar archivo config
+import config from './config';
+```
+
+3.3 Importar ConfigType
+
+```bash
+# Importar ConfigType
+import { ConfigType } from '@nestjs/config';
+```
+
+3.4 Crear configService en el constructor
+
+```bash
+# Inyectar config.KEY al paramero configService
+  constructor(
+    @Inject(config.KEY) private configService: ConfigType<typeof config>,
+  ){}
+```
+
+
+3.5 Usar variable de ambiente tipada
+
+```bash
+# Acceder al valor de la variable mediante el atributo configService
+  getHello(): string {
+    const apikey = this.configService.apiKey;
+    return `ApiKey = ${apikey}`;
+  }
+```
+
+
+
+4. Cargar configuración en el modulo
+
+```bash
+# Añadir load para cargar la configuración config
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      envFilePath: enviroments[process.env.NODE_ENV] || '.env',
+      load: [config],
+      isGlobal: true,
+  }),
+```
+
+# Validación variables ambientes
+-Validacion de Tipado
+-Validacion de archivos .env desde el exterior
+
+1. Instalar el paquete Joi
+
+```shell
+npm install --save joi
+```
+
+2. Importar el Joi en el módulo de la aplicación a través de la propiedad validationShema.
+
+```shell
+import * as Joi from 'joi';  
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      envFilePath: enviroments[process.env.NODE_ENV] || '.env',
+      load: [config],
+      isGlobal: true,
+      validationSchema: Joi.object({ 
+        API_KEY: Joi.number().required(),
+        DATABASE_NAME: Joi.string().required(),
+        DATABASE_PORT: Joi.number().required(),
+      }),
+    }),
+    ...
+  ],
+  ...
+})
+```
