@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
+
 import * as Joi from 'joi';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { enviroments } from './enviroments';
+import { DatabaseModule } from './database/database.module';
 import config from './config';
 
 
@@ -23,6 +25,7 @@ import config from './config';
       })
   }),
     UsersModule,
+    DatabaseModule,
   ],
   controllers: [AppController],
   providers: [AppService],
